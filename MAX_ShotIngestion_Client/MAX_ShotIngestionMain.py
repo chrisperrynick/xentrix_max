@@ -48,7 +48,7 @@ def get_traceback(data):
         if 'Traceback' in e:
             flag = True
         if flag:
-            if 'Error:' not in e:
+            if 'Error:' in e:
                 flag = False
                 e = "#" * 50
                 e += '\n'

@@ -84,6 +84,8 @@ class MAX_ShotIngestion(object):
             info_json_data = json.load(reader)
         for set in info_json_data['sets']:
             set_path = '{}/Prod/MAX/00_CG/scenes/Sets/{}/Data/Sections/'.format(Config.MAYA_DOLLAR_PATH, set)
+            if not os.path.exists(set_path):
+                continue
             for file in os.listdir(set_path):
                 if not file.endswith("_GPU.ma"):
                     continue
