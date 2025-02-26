@@ -8,6 +8,7 @@ import maya.OpenMaya as OpenMaya
 import maya.OpenMayaUI as OpenMayaUI
 from datetime import date
 import Config as Config
+
 reload(Config)
 
 try:
@@ -22,10 +23,8 @@ except Exception as e:
 import pymel.core as pm
 
 
-
-
 class MAX_ShotIngestion(object):
-    def setup(self, shot_name, seqq_path):
+    def setup(self, shot_name, seqq_path, dontImportShotData):
         os.environ['MAX_PATH'] = Config.MAYA_DOLLAR_PATH
         bulid_errors = []
         pb_errors = []
@@ -47,7 +46,7 @@ class MAX_ShotIngestion(object):
             try:
                 file_name = 'MAX_{}_Blk_v01_x01.ma'.format(shot_name)
                 self.bulid_set(file_name)
-                self.MAXUECameraFbxImport(seq_path)
+                self.MAXUECameraFbxImport(seq_path, dontImportShotData)
                 pm.saveFile()
             except Exception as code_error:
                 pm.saveFile()
@@ -70,8 +69,8 @@ class MAX_ShotIngestion(object):
                 else:
                     msg.writelines("\nsuccess:{}".format(self.shot_name))
 
-            pm.saveFile()
-            cmds.quit(f=1, a=1)
+        pm.saveFile()
+        cmds.quit(f=1, a=1)
 
     def bulid_set(self, file_name):
         asset_json = '{}/{}_asset_data.json'.format(self.shot_cam_fbx_path, self.shot_name)
@@ -93,7 +92,7 @@ class MAX_ShotIngestion(object):
                           mergeNamespacesOnClash=False, namespace='', options="v=0")
         pm.saveFile()
 
-    def MAXUECameraFbxImport(self, seq_path):
+    def MAXUECameraFbxImport(self, seq_path, dontImportShotData):
         """
             Process of importing camera fbx
         return: None
@@ -117,14 +116,16 @@ class MAX_ShotIngestion(object):
         cam_fbx = '{}_cam.fbx'.format(self.shot_name)
         self.importFbxPath('{}/{}'.format(self.shot_cam_fbx_path, cam_fbx), clientFrame)
         remFilePath = ['{}/{}'.format(self.shot_cam_fbx_path, e) for e in os.listdir(self.shot_cam_fbx_path)
-                        if not e.endswith(('.csv', '_cam.fbx', '.csv#', '.json'))]
-        self.impRemainingFBXImport(remFilePath, clientFrame,grp='UE_Cam')
+                       if not e.endswith(('.csv', '_cam.fbx', '.csv#', '.json'))]
+        self.impRemainingFBXImport(remFilePath, clientFrame, grp='UE_Cam')
         self.CameraSetting()
         self.updatingKeys(clientFrame)
-        self.shotWiseFBX(self.shot_cam_fbx_path, clientFrame)
+        if dontImportShotData in "False":
+            self.shotWiseFBX(self.shot_cam_fbx_path, clientFrame)
         pm.playbackOptions(e=1, ast=1, aet=end_frame)
         pm.playbackOptions(e=1, min=1, max=end_frame)
         self.ue_other_data_visblity_off()
+
     def importFbxPath(self, file_path, client_frame):
         """
             Process of importing FBX file
@@ -169,7 +170,7 @@ class MAX_ShotIngestion(object):
     def impRemainingFBXImport(self, remFilePath, client_frame, grp='UE_Cam'):
         for eachRemFilePath in remFilePath:
             before_importing = set(pm.ls(assemblies=1))
-            self.importFbxPath(eachRemFilePath,client_frame)
+            self.importFbxPath(eachRemFilePath, client_frame)
             after_importing = set(pm.ls(assemblies=1))
             imported_objs = after_importing.difference(before_importing)
             imported_objs = [e.name() for e in imported_objs]
@@ -180,7 +181,7 @@ class MAX_ShotIngestion(object):
         _sceneName = pm.sceneName()
         _scene = _sceneName.basename().split('_')
         pm.parent("FBX*_cam", "UE_Cam")
-        new_name = 'FBX_{}_{}_shot_{}_cam_noka'.format(self.epi,self.seq,self.shot)
+        new_name = 'FBX_{}_{}_shot_{}_cam_noka'.format(self.epi, self.seq, self.shot)
         pm.setAttr("{}.scaleX".format(new_name), 1)
         pm.setAttr("{}.scaleY".format(new_name), 1)
         pm.setAttr("{}.scaleZ".format(new_name), 1)
@@ -245,7 +246,7 @@ class MAX_ShotIngestion(object):
             if fbx_namespace.endswith('_cam') or fbx_namespace.endswith('_cam_noka'):
                 continue
             try:
-                pm.setAttr('{}.visibility'.format(fbx_namespace),0)
+                pm.setAttr('{}.visibility'.format(fbx_namespace), 0)
             except:
                 pass
         pm.setAttr("UE_Cam.scaleX", .1)
@@ -321,5 +322,6 @@ def main(*args):
     print("args >>>>>>>>>>>>>>>> ", args)
     shotName = args[0]
     seq_path = args[1]
+    dontImportShotData = args[2]
     x = MAX_ShotIngestion()
-    x.setup(shotName, seq_path)
+    x.setup(shotName, seq_path, dontImportShotData)
