@@ -32,6 +32,9 @@ class ShotIngestionUI(QtWidgets.QMainWindow):
         self.browse_btn = QtWidgets.QPushButton('Browse Bake path')
         self.browse_btn.resize(30, 30)
 
+        # Shot Import
+        self.dont_import_sd_cb = QtWidgets.QCheckBox("Don't Import Shot Data")
+
         # Search LineEdit
         self.search_ldt = QtWidgets.QLineEdit()
         self.search_ldt.setPlaceholderText('Search...')
@@ -44,7 +47,8 @@ class ShotIngestionUI(QtWidgets.QMainWindow):
         self.inject = QtWidgets.QPushButton('Ingest')
 
         grid_layout.addWidget(self.browse_btn, 0, 0)
-        grid_layout.addWidget(self.search_ldt, 0, 1)
+        grid_layout.addWidget(self.dont_import_sd_cb, 0, 1)
+        grid_layout.addWidget(self.search_ldt, 0, 2)
         grid_layout.addWidget(self.shotList_LWgt, 1, 0, 1, -1)
         grid_layout.addWidget(self.inject, 3, 0, 1, -1)
 
@@ -93,7 +97,7 @@ class ShotIngestionUI(QtWidgets.QMainWindow):
                                  message='<p style = "color:#ff6666">Please Select the Shots...</p>')
             return
 
-        MAX_ShotIngestionMain.main(shot_list, Config.MAYA_EXE_PATH, self.seq_path)
+        MAX_ShotIngestionMain.main(shot_list, Config.MAYA_EXE_PATH, self.seq_path, self.dont_import_sd_cb.isChecked())
 
         sucess_data, error_data = self.erorr_sucess_data()
 
