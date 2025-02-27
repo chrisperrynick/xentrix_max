@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-def main(shot_list, maya_exe, seq_path):
+def main(shot_list, maya_exe, seq_path, dontImportShotData):
     """
 
     :return:
@@ -10,15 +10,15 @@ def main(shot_list, maya_exe, seq_path):
 
     cmd = ('"{mayaexe}" -command "python(\\"import sys;import os;sys.path.append(os.getcwd());'
            'import MAX_ShotIngestion as MSI;'
-           ' reload(MSI); result = MSI.main(\'{sName}\',\'{seq_path}\');\\")"')
+           ' reload(MSI); result = MSI.main(\'{sName}\',\'{seq_path}\',\'{dontImportShotData}\');\\")"')
 
     for shot in shot_list:
         print('>>>>>>>>>>>>>>>', shot)
-        run_command(cmd, maya_exe, shot, seq_path)
+        run_command(cmd, maya_exe, shot, seq_path, dontImportShotData)
 
 
-def run_command(command, maya_exe, sName, seq_path):
-    command = command.format(mayaexe=maya_exe, sName=sName, seq_path=seq_path)
+def run_command(command, maya_exe, sName, seq_path, dontImportShotData):
+    command = command.format(mayaexe=maya_exe, sName=sName, seq_path=seq_path, dontImportShotData=dontImportShotData)
     print("command >>>>> ", command)
     process = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
