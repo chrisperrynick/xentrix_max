@@ -1,6 +1,7 @@
 import os
 import json
 import csv
+import time
 import traceback
 from importlib import *
 import maya.cmds as cmds
@@ -24,7 +25,7 @@ import pymel.core as pm
 
 
 class MAX_ShotIngestion(object):
-    def setup(self, shot_name, seqq_path, dontImportShotData):
+    def setup(self, shot_name, seqq_path, dontImportShotData, wait_time):
         os.environ['MAX_PATH'] = Config.MAYA_DOLLAR_PATH
         bulid_errors = []
         pb_errors = []
@@ -47,6 +48,7 @@ class MAX_ShotIngestion(object):
                 file_name = 'MAX_{}_Blk_v01_x01.ma'.format(shot_name)
                 self.bulid_set(file_name)
                 self.MAXUECameraFbxImport(seq_path, dontImportShotData)
+                time.sleep(int(wait_time))
                 pm.saveFile()
             except Exception as code_error:
                 pm.saveFile()
@@ -323,5 +325,6 @@ def main(*args):
     shotName = args[0]
     seq_path = args[1]
     dontImportShotData = args[2]
+    wait_time = args[3]
     x = MAX_ShotIngestion()
-    x.setup(shotName, seq_path, dontImportShotData)
+    x.setup(shotName, seq_path, dontImportShotData, wait_time)

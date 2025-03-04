@@ -34,6 +34,8 @@ class ShotIngestionUI(QtWidgets.QMainWindow):
 
         # Shot Import
         self.dont_import_sd_cb = QtWidgets.QCheckBox("Don't Import Shot Data")
+        self.wait_secs = QtWidgets.QLineEdit()
+        self.wait_secs.setPlaceholderText('Enter Seconds to Wait (to load GPU)')
 
         # Search LineEdit
         self.search_ldt = QtWidgets.QLineEdit()
@@ -47,10 +49,11 @@ class ShotIngestionUI(QtWidgets.QMainWindow):
         self.inject = QtWidgets.QPushButton('Ingest')
 
         grid_layout.addWidget(self.browse_btn, 0, 0)
-        grid_layout.addWidget(self.dont_import_sd_cb, 0, 1)
-        grid_layout.addWidget(self.search_ldt, 0, 2)
-        grid_layout.addWidget(self.shotList_LWgt, 1, 0, 1, -1)
-        grid_layout.addWidget(self.inject, 3, 0, 1, -1)
+        grid_layout.addWidget(self.search_ldt, 0, 1)
+        grid_layout.addWidget(self.dont_import_sd_cb, 1, 0)
+        grid_layout.addWidget(self.wait_secs, 1, 1)
+        grid_layout.addWidget(self.shotList_LWgt, 2, 0, 1, -1)
+        grid_layout.addWidget(self.inject, 4, 0, 1, -1)
 
         self.show()
         self.browse_btn.clicked.connect(self.project_shot_list)
@@ -96,8 +99,10 @@ class ShotIngestionUI(QtWidgets.QMainWindow):
             self.xen_message_box(title='Warning!!!',
                                  message='<p style = "color:#ff6666">Please Select the Shots...</p>')
             return
-
-        MAX_ShotIngestionMain.main(shot_list, Config.MAYA_EXE_PATH, self.seq_path, self.dont_import_sd_cb.isChecked())
+        wait_time = 0
+        if self.wait_secs:
+            wait_time = self.wait_secs.text()
+        MAX_ShotIngestionMain.main(shot_list, Config.MAYA_EXE_PATH, self.seq_path, self.dont_import_sd_cb.isChecked(), wait_time)
 
         sucess_data, error_data = self.erorr_sucess_data()
 
