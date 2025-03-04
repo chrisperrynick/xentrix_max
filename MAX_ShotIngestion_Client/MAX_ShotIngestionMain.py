@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-def main(shot_list, maya_exe, seq_path, dontImportShotData):
+def main(shot_list, maya_exe, seq_path, dontImportShotData, wait_time):
     """
 
     :return:
@@ -10,15 +10,15 @@ def main(shot_list, maya_exe, seq_path, dontImportShotData):
 
     cmd = ('"{mayaexe}" -command "python(\\"import sys;import os;sys.path.append(os.getcwd());'
            'import MAX_ShotIngestion as MSI;'
-           ' reload(MSI); result = MSI.main(\'{sName}\',\'{seq_path}\',\'{dontImportShotData}\');\\")"')
+           ' reload(MSI); result = MSI.main(\'{sName}\',\'{seq_path}\',\'{dontImportShotData}\',\'{wait_time}\');\\")"')
 
     for shot in shot_list:
         print('>>>>>>>>>>>>>>>', shot)
-        run_command(cmd, maya_exe, shot, seq_path, dontImportShotData)
+        run_command(cmd, maya_exe, shot, seq_path, dontImportShotData, wait_time)
 
 
-def run_command(command, maya_exe, sName, seq_path, dontImportShotData):
-    command = command.format(mayaexe=maya_exe, sName=sName, seq_path=seq_path, dontImportShotData=dontImportShotData)
+def run_command(command, maya_exe, sName, seq_path, dontImportShotData, wait_time):
+    command = command.format(mayaexe=maya_exe, sName=sName, seq_path=seq_path, dontImportShotData=dontImportShotData, wait_time=wait_time)
     print("command >>>>> ", command)
     process = subprocess.Popen(command, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
